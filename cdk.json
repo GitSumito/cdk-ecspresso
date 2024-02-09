@@ -38,6 +38,26 @@
     "@aws-cdk/core:target-partitions": [
       "aws",
       "aws-cn"
-    ]
+    ],
+    "dev": {
+      "alb": {
+        "inboundport": 8080,
+        "outboundport": 80
+      },
+      "app1": {
+        "name": "cdk-ecspresso"
+      },
+      "costTagValue": "dev"
+    },
+    "prd": {
+      "alb": {
+        "inboundport": 8080,
+        "outboundport": 80
+      },
+      "app1": {
+        "name": "cdk-ecspresso"
+      },
+      "costTagValue": "prd"
+    }
   }
 }
