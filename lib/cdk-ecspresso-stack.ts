@@ -8,27 +8,33 @@ import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { Cluster } from "aws-cdk-lib/aws-ecs";
 import { Repository } from "aws-cdk-lib/aws-ecr";
 import { LogGroup } from "aws-cdk-lib/aws-logs";
+import { context } from "../bin/cdk";
 
 // CDK + ecspressoで構築するコンテナ関連リソース
 export class CdkEcspressoStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id);
+    super(scope, id, props)
     // VPC
     const vpc = new Vpc(this, "Vpc", { maxAzs: 2 });
     const subnetIdList = vpc.privateSubnets.map(obj => obj.subnetId);
     // SG
     const albSg = new ec2.SecurityGroup(this, 'AlbSg', { vpc, allowAllOutbound: false });
     const containerSg = new ec2.SecurityGroup(this, 'ContainerSg', { vpc });
-    albSg.addIngressRule(ec2.Peer.ipv4('0.0.0.0/0') , ec2.Port.tcp(8080)); // インバウンドを許可
-    albSg.connections.allowTo(containerSg, ec2.Port.tcp(80));  // ALB ⇔ コンテナ間の通信を許可
-    // ALB    
+
+    console.log(context.alb.inboundport);
+    // インバウンドを許可
+    albSg.addIngressRule(ec2.Peer.ipv4('0.0.0.0/0'), ec2.Port.tcp(context.alb.inboundport)); //8080
+    // ALB ⇔ コンテナ間の通信を許可
+    albSg.connections.allowTo(containerSg, ec2.Port.tcp(context.alb.outboundport)); //80
+    // ALB
     const alb = new elbv2.ApplicationLoadBalancer(this, 'Alb', { vpc, internetFacing: true, securityGroup: albSg });
     // TG
-    const containerTg = new elbv2.ApplicationTargetGroup(this, 'ContainerTg', { targetType: elbv2.TargetType.IP, port: 80, vpc });
+    const containerTg = new elbv2.ApplicationTargetGroup(this, 'ContainerTg', { targetType: elbv2.TargetType.IP, port: context.alb.outboundport, vpc }); //80
     // ALBリスナー
-    alb.addListener('Listener', { defaultTargetGroups: [containerTg], open: true, port: 8080 }); // 作成したTGをALBに紐づけ
+    // 作成したTGをALBに紐づけ
+    alb.addListener('Listener', { defaultTargetGroups: [containerTg], open: true, port: context.alb.inboundport }); //8080
     // ECSクラスタ
-    const cluster = new Cluster(this, 'EcsCluster', { vpc, clusterName: 'cdk-ecspresso' });
+    const cluster = new Cluster(this, 'EcsCluster', { vpc, clusterName: context.app1.name });
     // タスクロール
     const taskRole = new Role(this, 'TaskRole', { assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'), });
     // タスク実行ロール
