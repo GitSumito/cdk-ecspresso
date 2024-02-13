@@ -3,5 +3,7 @@ install:
 	npm install -g aws-cdk
 diff-dev:
 	cdk diff CdkEcspressoStack -c env=dev
+deploy-dev:
+	cdk deploy CdkEcspressoStack -c env=dev
 diff-prd:
 	cdk diff CdkEcspressoStack -c env=prd
