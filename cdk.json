@@ -40,23 +40,53 @@
       "aws-cn"
     ],
     "dev": {
-      "alb": {
-        "inboundport": 8080,
-        "outboundport": 80
-      },
       "app1": {
-        "name": "cdk-ecspresso"
+        "name": "app1",
+        "alb": {
+          "inboundport": 8080,
+          "outboundport": 80
+        }
       },
+      "app2": {
+        "name": "app2",
+        "alb": {
+          "inboundport": 8080,
+          "outboundport": 80
+        }
+      },
+      "app3": {
+        "name": "app3",
+        "alb": {
+          "inboundport": 8080,
+          "outboundport": 80
+        }
+      },
+      "vpcName": "dev-vpc",
       "costTagValue": "dev"
     },
     "prd": {
-      "alb": {
-        "inboundport": 8080,
-        "outboundport": 80
-      },
       "app1": {
-        "name": "cdk-ecspresso"
+        "name": "app1",
+        "alb": {
+          "inboundport": 8080,
+          "outboundport": 80
+        }
       },
+      "app2": {
+        "name": "app2",
+        "alb": {
+          "inboundport": 8080,
+          "outboundport": 80
+        }
+      },
+      "app3": {
+        "name": "app3",
+        "alb": {
+          "inboundport": 8080,
+          "outboundport": 80
+        }
+      },
+      "vpcName": "prd-vpc",
       "costTagValue": "prd"
     }
   }
